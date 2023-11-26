@@ -20,8 +20,8 @@ public class MainActivity extends AppCompatActivity {
         myPage_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                Intent intentToMyPage = new Intent(MainActivity.this, .class);
-//                startActivity(intentToMyPage);
+                Intent intentToMyPage = new Intent(MainActivity.this, MyPageActivity.class);
+                startActivity(intentToMyPage);
             }
         });
 
