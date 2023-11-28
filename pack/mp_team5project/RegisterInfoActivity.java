@@ -29,6 +29,8 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import java.util.Calendar;
+
 public class RegisterInfoActivity extends AppCompatActivity {
 
     Spinner campusSpinner, arcSpinner, ctgSpinner;
@@ -39,6 +41,7 @@ public class RegisterInfoActivity extends AppCompatActivity {
     ActivityResultLauncher<Intent> launcher;
 
     int year, month,day;
+    int selectedYear, selectedMonth,selectedDay;
     private static final int REQUEST_CODE_PERMISSION = 100;
     private static final int REQUEST_CODE_ATTACH_FILE = 101;
 
@@ -97,10 +100,20 @@ public class RegisterInfoActivity extends AppCompatActivity {
         ctgAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         ctgSpinner.setAdapter(ctgAdapter);
 
+        Calendar calendar = Calendar.getInstance();
+        year = calendar.get(Calendar.YEAR);
+        month = calendar.get(Calendar.MONTH);
+        day = calendar.get(Calendar.DAY_OF_MONTH);
+
         datePicker = findViewById(R.id.datePicker);
-        year = datePicker.getYear();
-        month = datePicker.getMonth() + 1 ;
-        day = datePicker.getDayOfMonth();
+        datePicker.init(year, month, day, new DatePicker.OnDateChangedListener() {
+            @Override
+            public void onDateChanged(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+                selectedYear = year;
+                selectedMonth = monthOfYear + 1;
+                selectedDay = dayOfMonth;
+            }
+        });
 
 
 
@@ -142,7 +155,7 @@ public class RegisterInfoActivity extends AppCompatActivity {
 
     private void checkPermission() {
         if(ContextCompat.checkSelfPermission(this,
-                android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+                Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},REQUEST_CODE_PERMISSION);
         }
@@ -187,9 +200,9 @@ public class RegisterInfoActivity extends AppCompatActivity {
         intent.putExtra("KEY_DETAIL_PLACE",inputDPlace);
 
 
-        intent.putExtra("KEY_YEAR",year);
-        intent.putExtra("KEY_MONTH",month);
-        intent.putExtra("KEY_DAY", day);
+        intent.putExtra("KEY_YEAR",selectedYear);
+        intent.putExtra("KEY_MONTH",selectedMonth);
+        intent.putExtra("KEY_DAY", selectedDay);
 
         String selectedCtg = ctgSpinner.getSelectedItem().toString();
         intent.putExtra("KEY_CTG",selectedCtg);
