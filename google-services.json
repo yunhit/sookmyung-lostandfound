@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "474207627122",
+    "firebase_url": "https://mp-team5project-default-rtdb.firebaseio.com",
+    "project_id": "mp-team5project",
+    "storage_bucket": "mp-team5project.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:474207627122:android:c41a51f7814c50ee38dfeb",
+        "android_client_info": {
+          "package_name": "pack.mp_team5project"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAHGNSRdKO3hgYvnvgaC33kAYL5NecsZUw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
