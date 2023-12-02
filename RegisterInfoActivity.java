@@ -10,7 +10,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
-import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -19,6 +18,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -29,18 +29,33 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import java.util.Calendar;
+
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+
+
 public class RegisterInfoActivity extends AppCompatActivity {
 
     Spinner campusSpinner, arcSpinner, ctgSpinner;
     EditText dtPlace, itName, ipTag;
     DatePicker datePicker;
     ImageView inputImage;
-    android.widget.Button attachBtn,rgBtn;
+    Button attachBtn,rgBtn;
     ActivityResultLauncher<Intent> launcher;
 
     int year, month,day;
+    int selectedYear, selectedMonth,selectedDay;
     private static final int REQUEST_CODE_PERMISSION = 100;
     private static final int REQUEST_CODE_ATTACH_FILE = 101;
+
+    DatabaseReference mRootRef = FirebaseDatabase.getInstance().getReference();
+    DatabaseReference conditionRef = mRootRef.child("Data");
+    DatabaseReference dataRef; // 클래스 레벨에서 dataRef 선언
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +63,8 @@ public class RegisterInfoActivity extends AppCompatActivity {
         setContentView(R.layout.activity_register_info);
 
         setTitle("분실물 같이 찾송");
+
+        dataRef = conditionRef.push(); // onCreate 내에서 dataRef 초기화
 
         //Spinner 설정
         campusSpinner = findViewById(R.id.which_campus);
@@ -97,10 +114,20 @@ public class RegisterInfoActivity extends AppCompatActivity {
         ctgAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         ctgSpinner.setAdapter(ctgAdapter);
 
+        Calendar calendar = Calendar.getInstance();
+        year = calendar.get(Calendar.YEAR);
+        month = calendar.get(Calendar.MONTH);
+        day = calendar.get(Calendar.DAY_OF_MONTH);
+
         datePicker = findViewById(R.id.datePicker);
-        year = datePicker.getYear();
-        month = datePicker.getMonth() + 1 ;
-        day = datePicker.getDayOfMonth();
+        datePicker.init(year, month, day, new DatePicker.OnDateChangedListener() {
+            @Override
+            public void onDateChanged(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+                selectedYear = year;
+                selectedMonth = monthOfYear + 1;
+                selectedDay = dayOfMonth;
+            }
+        });
 
 
 
@@ -142,7 +169,7 @@ public class RegisterInfoActivity extends AppCompatActivity {
 
     private void checkPermission() {
         if(ContextCompat.checkSelfPermission(this,
-                android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+                Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},REQUEST_CODE_PERMISSION);
         }
@@ -187,9 +214,9 @@ public class RegisterInfoActivity extends AppCompatActivity {
         intent.putExtra("KEY_DETAIL_PLACE",inputDPlace);
 
 
-        intent.putExtra("KEY_YEAR",year);
-        intent.putExtra("KEY_MONTH",month);
-        intent.putExtra("KEY_DAY", day);
+        intent.putExtra("KEY_YEAR",selectedYear);
+        intent.putExtra("KEY_MONTH",selectedMonth);
+        intent.putExtra("KEY_DAY", selectedDay);
 
         String selectedCtg = ctgSpinner.getSelectedItem().toString();
         intent.putExtra("KEY_CTG",selectedCtg);
@@ -207,11 +234,52 @@ public class RegisterInfoActivity extends AppCompatActivity {
             Uri imageUri = getImageUri(inputImage.getDrawable());
             intent.putExtra("KEY_IMAGE_URI",imageUri.toString());
         }
-
-
-
-
         startActivity(intent);
+
+        // firebase Realtime Database에 data 저장
+        dataRef.child("selectedCampus").setValue(selectedCampus);
+        dataRef.child("selectedArc").setValue(selectedArc);
+        dataRef.child("inputDPlace").setValue(inputDPlace);
+        dataRef.child("year").setValue(selectedYear); // DatePicker 선택된 값으로 변수 수정
+        dataRef.child("month").setValue(selectedMonth);
+        dataRef.child("day").setValue(selectedDay);
+        dataRef.child("selectedCtg").setValue(selectedCtg);
+        dataRef.child("inputName").setValue(inputName);
+        dataRef.child("inputTag").setValue(inputTag);
+
+        // 이미지를 Firebase Storage에 업로드
+        if (inputImage != null && inputImage.getDrawable() != null) {
+            Uri imageUri = getImageUri(inputImage.getDrawable());
+            uploadImageToFirebase(imageUri);
+        } else {
+            Toast.makeText(this, "데이터가 성공적으로 저장되었습니다.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void uploadImageToFirebase(Uri imageUri) {
+        // 이미지를 Firebase Storage에 업로드
+        StorageReference storageRef = FirebaseStorage.getInstance().getReference();
+        StorageReference imagesRef = storageRef.child("images/" + imageUri.getLastPathSegment());
+        UploadTask uploadTask = imagesRef.putFile(imageUri);
+
+        uploadTask.addOnSuccessListener(taskSnapshot -> {
+            // 이미지 업로드 성공 시, 이미지의 다운로드 URL을 가져와서 데이터베이스에 저장
+            imagesRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                String imageUrl = uri.toString();
+                saveDataToDatabase(imageUrl);
+            });
+        }).addOnFailureListener(exception -> {
+            // 이미지 업로드 실패 시 처리
+            Toast.makeText(RegisterInfoActivity.this, "이미지 업로드 실패", Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    private void saveDataToDatabase(String imageUrl) {
+        // 이미지 다운로드 URL을 데이터베이스에 저장
+        dataRef.child("imageUrl").setValue(imageUrl);
+
+        Toast.makeText(this, "데이터가 성공적으로 저장되었습니다.", Toast.LENGTH_SHORT).show();
+        // 데이터 저장 후 원하는 작업을 수행하도록 처리
     }
 
     private Uri getImageUri(Drawable drawable) {
