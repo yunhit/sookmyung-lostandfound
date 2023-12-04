@@ -1,5 +1,6 @@
 package pack.mp_team5project;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
@@ -60,6 +61,14 @@ public class SearchActivity extends AppCompatActivity {
                         String description = (String) firebaseDataMap.get("inputTag");
                         String imageUrl = (String) firebaseDataMap.get("imageUrl");
 
+                        String campus = (String) firebaseDataMap.get("selectedCampus");
+                        String arc = (String) firebaseDataMap.get("selectedArc");
+                        String dtPlace = (String) firebaseDataMap.get("inputDPlace");
+                        String ctg = (String) firebaseDataMap.get("selectedCtg");
+                        String etc = (String) firebaseDataMap.get("rfDetail");
+
+                        String uid = (String) firebaseDataMap.get("userID");
+
                         // 기본값으로 처리
                         int intYear = 0, intMonth = 0, intDay = 0;
 
@@ -76,7 +85,8 @@ public class SearchActivity extends AppCompatActivity {
                         String date = String.format("%04d-%02d-%02d", intYear, intMonth, intDay);
 
                         // PostModel 객체 생성 후 값 설정
-                        PostModel post = new PostModel(title, date, description, imageUrl);
+                        PostModel post = new PostModel(title, date, description, imageUrl
+                        ,campus, arc, dtPlace, ctg, etc, uid);
                         postList.add(post);
                     }
                 }
@@ -88,6 +98,17 @@ public class SearchActivity extends AppCompatActivity {
                 Toast.makeText(SearchActivity.this, "Failed to load posts.", Toast.LENGTH_SHORT).show();
             }
         });
+
+        postAdapter.setOnItemClickListener(new PostAdapter.OnItemClickListener(){
+            @Override
+            public void onItemClick(PostModel post){
+                openPostDtActivity(post);
+            }
+
+
+        });
+
+
 
         SearchView searchView = findViewById(R.id.search_view);
 
@@ -106,6 +127,22 @@ public class SearchActivity extends AppCompatActivity {
                 return true;
             }
         });
+    }
+
+    private void openPostDtActivity(PostModel post) {
+        Intent intent = new Intent(SearchActivity.this, PostDetailActivity.class);
+
+        intent.putExtra("title",post.getTitle());
+        intent.putExtra("date",post.getDate());
+        intent.putExtra("tag",post.getDescription());
+        intent.putExtra("imgUrl",post.getImageUrl());
+        intent.putExtra("campus",post.getCampus());
+        intent.putExtra("arc",post.getArc());
+        intent.putExtra("dtPlace",post.getDtPlace());
+        intent.putExtra("ctg",post.getCtg());
+        intent.putExtra("etc",post.getEtc());
+
+        startActivity(intent);
     }
 
     // 검색 메서드
@@ -129,6 +166,8 @@ public class SearchActivity extends AppCompatActivity {
 
         // RecyclerView 에 검색된 결과 표시
         updateRecyclerView(filteredList);
+
+
     }
 
 

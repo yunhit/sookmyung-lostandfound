@@ -31,18 +31,19 @@ import android.widget.Toast;
 
 import java.util.Calendar;
 
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.auth.FirebaseAuth;
 
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+
 public class RegisterInfoActivity extends AppCompatActivity {
 
     Spinner campusSpinner, arcSpinner, ctgSpinner;
-    EditText dtPlace, itName, ipTag;
+    EditText dtPlace, itName, ipTag, rfDetail;
     DatePicker datePicker;
     ImageView inputImage;
     Button attachBtn,rgBtn;
@@ -63,7 +64,8 @@ public class RegisterInfoActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register_info);
 
-        mAuth = FirebaseAuth.getInstance();//Post data안에 현재 UID를 등록하기 위함
+
+        mAuth = FirebaseAuth.getInstance(); //Post data안에 현재 UID를 등록하기 위함
         dataRef = conditionRef.push(); // onCreate 내에서 dataRef 초기화
 
         //Spinner 설정
@@ -230,10 +232,15 @@ public class RegisterInfoActivity extends AppCompatActivity {
         String inputTag = ipTag.getText().toString();
         intent.putExtra("KEY_TAG",inputTag);
 
+        rfDetail = findViewById(R.id.rfDetail);
+        String refDetail = rfDetail.getText().toString();
+
         if (inputImage != null && inputImage.getDrawable() != null){
             Uri imageUri = getImageUri(inputImage.getDrawable());
             intent.putExtra("KEY_IMAGE_URI",imageUri.toString());
         }
+        intent.putExtra("KEY_DATA_KEY", dataRef.getKey());
+
         startActivity(intent);
 
         // firebase Realtime Database에 data 저장
@@ -246,6 +253,7 @@ public class RegisterInfoActivity extends AppCompatActivity {
         dataRef.child("selectedCtg").setValue(selectedCtg);
         dataRef.child("inputName").setValue(inputName);
         dataRef.child("inputTag").setValue(inputTag);
+        dataRef.child("rfDetail").setValue(refDetail);
         dataRef.child("userID").setValue(mAuth.getCurrentUser().getUid());
 
         // 이미지를 Firebase Storage에 업로드
@@ -255,6 +263,8 @@ public class RegisterInfoActivity extends AppCompatActivity {
         } else {
             Toast.makeText(this, "데이터가 성공적으로 저장되었습니다.", Toast.LENGTH_SHORT).show();
         }
+
+
     }
 
     private void uploadImageToFirebase(Uri imageUri) {
