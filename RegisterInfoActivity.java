@@ -31,13 +31,13 @@ import android.widget.Toast;
 
 import java.util.Calendar;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-
 
 public class RegisterInfoActivity extends AppCompatActivity {
 
@@ -47,6 +47,7 @@ public class RegisterInfoActivity extends AppCompatActivity {
     ImageView inputImage;
     Button attachBtn,rgBtn;
     ActivityResultLauncher<Intent> launcher;
+    private FirebaseAuth mAuth;
 
     int year, month,day;
     int selectedYear, selectedMonth,selectedDay;
@@ -62,8 +63,7 @@ public class RegisterInfoActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register_info);
 
-        setTitle("분실물 같이 찾송");
-
+        mAuth = FirebaseAuth.getInstance();//Post data안에 현재 UID를 등록하기 위함
         dataRef = conditionRef.push(); // onCreate 내에서 dataRef 초기화
 
         //Spinner 설정
@@ -246,6 +246,7 @@ public class RegisterInfoActivity extends AppCompatActivity {
         dataRef.child("selectedCtg").setValue(selectedCtg);
         dataRef.child("inputName").setValue(inputName);
         dataRef.child("inputTag").setValue(inputTag);
+        dataRef.child("userID").setValue(mAuth.getCurrentUser().getUid());
 
         // 이미지를 Firebase Storage에 업로드
         if (inputImage != null && inputImage.getDrawable() != null) {
