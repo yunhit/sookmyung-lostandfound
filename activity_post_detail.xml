@@ -10,7 +10,7 @@
         android:id="@+id/textUserId"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="(아이디)님의 분실물"
+        android:text=""
         android:textSize="18sp"
         android:textStyle="bold"/>
 
@@ -24,7 +24,7 @@
     <ImageView
         android:id="@+id/itemImageView"
         android:layout_width="274dp"
-        android:layout_height="246dp"
+        android:layout_height="225dp"
         android:layout_gravity="center"
         android:layout_margin="16dp"
         android:adjustViewBounds="true"
@@ -94,9 +94,15 @@
     </LinearLayout>
 
     <!-- 5. 댓글 표시 영역 -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerViewComments"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"/>
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:scrollbars="none">
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewComments"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="16dp"/>
+    </ScrollView>
 </LinearLayout>
