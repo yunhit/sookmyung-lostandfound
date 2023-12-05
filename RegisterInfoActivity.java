@@ -18,7 +18,10 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -58,6 +61,7 @@ public class RegisterInfoActivity extends AppCompatActivity {
     DatabaseReference mRootRef = FirebaseDatabase.getInstance().getReference();
     DatabaseReference conditionRef = mRootRef.child("Data");
     DatabaseReference dataRef; // 클래스 레벨에서 dataRef 선언
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -165,6 +169,34 @@ public class RegisterInfoActivity extends AppCompatActivity {
             }
         });
 
+        // keyword 입력 해시태그(#) 자동 생성 기능
+        ipTag = findViewById(R.id.inputTag);
+        ipTag.addTextChangedListener(new TextWatcher() {
+            boolean isInitialChange = true;
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (isInitialChange) {
+                    isInitialChange = false;
+                    if (count > 0 && !Character.toString(s.charAt(start)).equals("#")) {
+                        ipTag.setText("#" + s.toString());
+                        ipTag.setSelection(ipTag.getText().length());
+                    }
+                } else if (count > 0 && s.charAt(start) == ' ') {
+                    String newText = s.toString().substring(0, start + 1) + "#";
+                    ipTag.setText(newText);
+                    ipTag.setSelection(newText.length());
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
 
 
     }
