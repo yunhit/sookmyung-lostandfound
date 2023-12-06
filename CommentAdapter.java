@@ -2,6 +2,7 @@ package pack.mp_team5project;
 
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,6 +36,9 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
         holder.textCmtContent.setText(comment.getCommentContent());
         holder.textCmtAuthor.setText(comment.getAuthor());
         holder.textCmtTimestamp.setText(comment.getTimeStamp());
+
+        Log.d("CommentAdapter", "Comment Content: " + commentList.get(position).getCommentContent());
+
     }
 
     @Override

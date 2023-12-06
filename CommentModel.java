@@ -5,6 +5,10 @@ public class CommentModel {
     private String commentContent;
     private String timeStamp;
 
+    public CommentModel() {
+        // 기본 생성자
+    }
+
 
     public CommentModel(String author, String commentContent, String timeStamp){
         this.author = author;

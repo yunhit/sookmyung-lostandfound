@@ -10,7 +10,8 @@ public class PostModel {
     private String dtPlace;
     private String ctg;
     private String etc;
-    private String uid;
+    private String userEmailId;
+    private String postKey;
 
 
 
@@ -19,7 +20,8 @@ public class PostModel {
     }
 
     public PostModel(String title, String date, String description, String imageUrl,
-                     String campus, String arc, String dtPlace, String ctg, String etc ,String uid) {
+                     String campus, String arc, String dtPlace, String ctg, String etc,
+                     String userEmailId, String postKey) {
         this.title = title;
         this.date = date;
         this.description = description;
@@ -29,7 +31,8 @@ public class PostModel {
         this.dtPlace = dtPlace;
         this.ctg = ctg;
         this.etc = etc;
-        this.uid = uid;
+        this.userEmailId = userEmailId;
+        this.postKey = postKey;
     }
 
     public String getTitle() {
@@ -95,10 +98,17 @@ public class PostModel {
         this.etc = etc;
     }
 
-    public String getUid() {
-        return uid;
+    public String getUserEmailId() {
+        return userEmailId;
     }
-    public void setUid(String uid) {
-        this.uid = uid;
+    public void setUserEmailId(String userEmailId) {
+        this.userEmailId = userEmailId;
+    }
+
+    public String getPostKey() {
+        return postKey;
+    }
+    public void setPostKey(String postKey) {
+        this.postKey = postKey;
     }
 }

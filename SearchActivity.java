@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -28,6 +29,8 @@ public class SearchActivity extends AppCompatActivity {
     private List<PostModel> postList;
     private PostAdapter postAdapter;
 
+
+    FirebaseAuth mAuth;
     DatabaseReference conditionRef = FirebaseDatabase.getInstance().getReference().child("Data");
 
     @Override
@@ -44,14 +47,19 @@ public class SearchActivity extends AppCompatActivity {
         recyclerView.setAdapter(postAdapter);
 
         // Firebase에서 데이터 가져오기
-        conditionRef.addValueEventListener(new ValueEventListener() {
+        mAuth = FirebaseAuth.getInstance();
+        String userEmailId = mAuth.getCurrentUser().getEmail();
+
+
+        conditionRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 postList.clear();
-                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    Map<String, Object> firebaseDataMap = (Map<String, Object>) snapshot.getValue(); // 가져온 데이터를 Map으로 변환
+                for(DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    String postKey = snapshot.getKey();
 
-                    if (firebaseDataMap != null) {
+                    Map<String, Object> firebaseDataMap = (Map<String, Object>) snapshot.getValue();
+                    if(firebaseDataMap != null){
                         String title = (String) firebaseDataMap.get("inputName");
                         // Firebase 에 저장된 키가 year month day 이기 때문에
                         String year = String.valueOf(firebaseDataMap.get("year"));
@@ -67,7 +75,6 @@ public class SearchActivity extends AppCompatActivity {
                         String ctg = (String) firebaseDataMap.get("selectedCtg");
                         String etc = (String) firebaseDataMap.get("rfDetail");
 
-                        String uid = (String) firebaseDataMap.get("userID");
 
                         // 기본값으로 처리
                         int intYear = 0, intMonth = 0, intDay = 0;
@@ -84,9 +91,9 @@ public class SearchActivity extends AppCompatActivity {
                         // 날짜를 합치고 원하는 형식으로 포맷팅
                         String date = String.format("%04d-%02d-%02d", intYear, intMonth, intDay);
 
-                        // PostModel 객체 생성 후 값 설정
-                        PostModel post = new PostModel(title, date, description, imageUrl
-                        ,campus, arc, dtPlace, ctg, etc, uid);
+                        //PostModel 객체 생성 및 변수 값 대입
+                        PostModel post = new PostModel(title, date, description, imageUrl, campus,
+                                arc,dtPlace,ctg,etc,userEmailId,postKey);
                         postList.add(post);
                     }
                 }
@@ -94,7 +101,7 @@ public class SearchActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
+            public void onCancelled(@NonNull DatabaseError error) {
                 Toast.makeText(SearchActivity.this, "Failed to load posts.", Toast.LENGTH_SHORT).show();
             }
         });
@@ -141,6 +148,8 @@ public class SearchActivity extends AppCompatActivity {
         intent.putExtra("dtPlace",post.getDtPlace());
         intent.putExtra("ctg",post.getCtg());
         intent.putExtra("etc",post.getEtc());
+        intent.putExtra("email",post.getUserEmailId());
+        intent.putExtra("postKey",post.getPostKey());
 
         startActivity(intent);
     }
