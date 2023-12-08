@@ -79,6 +79,7 @@ public class AlarmActivity extends AppCompatActivity {
                 }
             }
         });
+
         addTag_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -93,21 +94,13 @@ public class AlarmActivity extends AppCompatActivity {
                 openPostDtActivity(post);
             }
         });
-
-        if (ContextCompat.checkSelfPermission(AlarmActivity.this, Manifest.permission.POST_NOTIFICATIONS)
-                == PackageManager.PERMISSION_GRANTED) {
-            //
-        } else {
-            //권한이 없을 때 권한 요청
-            ActivityCompat.requestPermissions(AlarmActivity.this, new String[]{Manifest.permission.POST_NOTIFICATIONS},
-                    REQUEST_ALARM_PERMISSION);
-        }
     }
 
     //해시태그를 firebase-database에 추가
     public void addHashTag() {
         String hashtagValue = edt_tag.getText().toString();
         if (!hashtagValue.isEmpty()) {
+            personalHashtagList.clear();
             // 기존 데이터를 불러옴
             HashDataRef.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
@@ -131,6 +124,7 @@ public class AlarmActivity extends AppCompatActivity {
 
                     // 입력 필드 초기화
                     edt_tag.setText("");
+                    updateHashTagRecyclerView();
                 }
 
                 @Override
@@ -143,29 +137,27 @@ public class AlarmActivity extends AppCompatActivity {
     }
 
     //hashTag_RecyclerView에 사용자 설정해시태그 나타내기 메소드
+//hashTag_RecyclerView에 사용자 설정해시태그 나타내기 메소드
     private void updateHashTagRecyclerView() {
         HashDataRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
-
+                List<String> hashtagList = new ArrayList<>();
                 if (dataSnapshot.exists()) {
                     for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                         String hashtag = snapshot.getValue(String.class);
                         if (hashtag != null) {
-                            personalHashtagList.add(hashtag);
+                            hashtagList.add(hashtag);
                         }
                     }
                 }
-
                 // 리사이클뷰 준비
                 GridLayoutManager gridLayoutManager = new GridLayoutManager(AlarmActivity.this, calculateColumnCount());
                 hashTag_recyclearView.setLayoutManager(gridLayoutManager);
 
-                // 해시태그 어댑터 생성및 설정
-                HashTagAdapter hashTagAdapter = new HashTagAdapter(AlarmActivity.this, personalHashtagList);
+                // 해시태그 어댑터 생성 및 설정
+                HashTagAdapter hashTagAdapter = new HashTagAdapter(AlarmActivity.this, hashtagList);
                 hashTag_recyclearView.setAdapter(hashTagAdapter);
-
             }
 
             @Override
@@ -174,6 +166,7 @@ public class AlarmActivity extends AppCompatActivity {
             }
         });
     }
+
 
     //hashTag_RecyclerView에서 행별 열 갯수 설정
     private int calculateColumnCount() {
