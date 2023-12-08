@@ -1,14 +1,11 @@
 package pack.mp_team5project;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.SearchView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -35,6 +32,9 @@ public class MyWrittingFragment extends Fragment {
     private List<PostModel> postList;
     private PostAdapter postAdapter;
 
+    private List<CommentModel> commentList;
+    private CommentAdapter commentAdapter;
+
     View view;
 
     FirebaseAuth mAuth;
@@ -55,16 +55,18 @@ public class MyWrittingFragment extends Fragment {
         postAdapter = new PostAdapter(getContext(), postList);
         recyclerView.setAdapter(postAdapter);
 
+        commentList = new ArrayList<>();
+
         // 현재 사용자 가져오기
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
-        String userEmailId = mAuth.getCurrentUser().getEmail();
 
         conditionRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 postList.clear();
                 for(DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    String postKey = snapshot.getKey();
 
                     //가져온 데이터를 Map으로 변환
                     Map<String, Object> firebaseDataMap = (Map<String, Object>) snapshot.getValue();
@@ -89,7 +91,7 @@ public class MyWrittingFragment extends Fragment {
                             String ctg = (String) firebaseDataMap.get("selectedCtg");
                             String etc = (String) firebaseDataMap.get("rfDetail");
 
-                            String postKey =(String) firebaseDataMap.get("postKey");
+                            String userEmailId = (String) firebaseDataMap.get("userEmail");
 
                             int intYear = 0, intMonth = 0, intDay = 0;
 
@@ -111,9 +113,11 @@ public class MyWrittingFragment extends Fragment {
                     }
                 }
                 postAdapter.notifyDataSetChanged();
-                //postAdapter.setonItemLongClickListener(this);
-
-
+                if (postList.isEmpty()) {
+                    view.findViewById(R.id.no_result_text_view).setVisibility(View.VISIBLE);
+                } else {
+                    view.findViewById(R.id.no_result_text_view).setVisibility(View.GONE);
+                }
             }
 
             @Override
@@ -136,7 +140,6 @@ public class MyWrittingFragment extends Fragment {
 
     // 게시글로 이동
    private void openPostDtActivity(PostModel post) {
-
         // Fragment에서는 getActivity()로 현재 fragment가 속한 activity를 가져와야 함
         Intent intent = new Intent(getActivity(),PostDetailActivity.class);
 
