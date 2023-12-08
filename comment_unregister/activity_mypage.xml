@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MyPageActivity"
+    android:background="#274291" >
+
+    <LinearLayout
+        android:layout_margin="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="@drawable/border_onlywhite_background">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/MyID"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textSize="10pt"
+            android:textStyle="bold"
+            android:text="\n\n(아이디) 님"
+            android:textColor="@color/black"/>
+
+        <TextView
+            android:id="@+id/LoginSetting"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textColor="#BDBDBD"
+            android:clickable="true"
+            android:onClick="LoginSettingClick"
+            android:text="로그인설정>" />
+
+    </LinearLayout>
+
+    <pack.mp_team5project.LineView
+        android:layout_width="match_parent"
+        android:layout_height="20dp"
+        android:layout_centerInParent="true" />
+
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tabs"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        app:tabTextColor="@drawable/tabcolor"
+        app:tabIndicatorColor="#274291">
+
+        <com.google.android.material.tabs.TabItem
+            android:id="@+id/MyWritting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="작성한 글" />
+
+        <com.google.android.material.tabs.TabItem
+            android:id="@+id/MyAtt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="댓글 단 글" />
+    </com.google.android.material.tabs.TabLayout>
+
+    <LinearLayout
+        android:id="@+id/mainLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="5dp"
+        android:orientation="vertical">
+    </LinearLayout>
+
+    </LinearLayout>
+</LinearLayout>
