@@ -1,5 +1,6 @@
 package pack.mp_team5project;
 
+import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -22,12 +23,15 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class AlarmActivity extends AppCompatActivity {
+
+    private static final int REQUEST_ALARM_PERMISSION = 1;
 
     EditText edt_tag;
     ImageButton addTag_btn;
@@ -67,6 +71,13 @@ public class AlarmActivity extends AppCompatActivity {
         updateHashTagRecyclerView();
         updatePostRecyclerView(personalHashtagList);
 
+        if (ContextCompat.checkSelfPermission(AlarmActivity.this, Manifest.permission.POST_NOTIFICATIONS)
+                == PackageManager.PERMISSION_GRANTED) {
+        } else {
+            ActivityCompat.requestPermissions(AlarmActivity.this, new String[]{Manifest.permission.POST_NOTIFICATIONS},
+                    REQUEST_ALARM_PERMISSION);
+        }
+
         alarmSetting_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -94,6 +105,8 @@ public class AlarmActivity extends AppCompatActivity {
                 openPostDtActivity(post);
             }
         });
+
+        startFCMService();
     }
 
     //해시태그를 firebase-database에 추가
@@ -125,6 +138,8 @@ public class AlarmActivity extends AppCompatActivity {
                     // 입력 필드 초기화
                     edt_tag.setText("");
                     updateHashTagRecyclerView();
+                    updatePostRecyclerView(hashtagList);
+                    FCMService.subscribeToFCMTopic(hashtagValue);
                 }
 
                 @Override
@@ -137,7 +152,6 @@ public class AlarmActivity extends AppCompatActivity {
     }
 
     //hashTag_RecyclerView에 사용자 설정해시태그 나타내기 메소드
-//hashTag_RecyclerView에 사용자 설정해시태그 나타내기 메소드
     private void updateHashTagRecyclerView() {
         HashDataRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -196,13 +210,11 @@ public class AlarmActivity extends AppCompatActivity {
                                 // Firebase에서 가져온 해시태그와 입력한 태그 비교
                                 for (String firebaseTag : firebaseTags) {
                                     for (String hashTag : hashtagList) {
+                                        //중복 된 값이 있으면 루프 종료
                                         if (firebaseTag.equals(hashTag)) {
                                             hasDuplicate = true;
                                             break;
                                         }
-                                    }
-                                    if (hasDuplicate) {
-                                        break; // 중복된 값이 있으면 루프 종료
                                     }
                                 }
 
@@ -279,5 +291,9 @@ public class AlarmActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         updatePostRecyclerView(personalHashtagList);
+    }
+    private void startFCMService() {
+        Intent intent = new Intent(this, FCMService.class);
+        startService(intent);
     }
 }

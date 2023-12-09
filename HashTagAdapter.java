@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -53,9 +54,11 @@ public class HashTagAdapter extends RecyclerView.Adapter<HashTagAdapter.ViewHold
             public void onClick(View v) {
                 int adapterPosition = holder.getAdapterPosition();
                 if (adapterPosition != RecyclerView.NO_POSITION) {
-                    hashtagList.remove(adapterPosition);
+                    String removedHashtag = hashtagList.remove(adapterPosition);
                     notifyItemRemoved(adapterPosition);
                     updateFirebaseData(hashtagList);
+                    // FCM 토픽 가입 해지
+                    FCMService.unsubscribeFromFCMTopic(removedHashtag);
                 }
             }
         });
