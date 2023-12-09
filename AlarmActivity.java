@@ -198,65 +198,65 @@ public class AlarmActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    String postKey = snapshot.getKey();
                     Map<String, Object> firebaseDataMap = (Map<String, Object>) snapshot.getValue();
 
-                        if (firebaseDataMap != null) {
-                            String inputTag = (String) firebaseDataMap.get("inputTag");
-                            if (inputTag != null) {
-                                String[] firebaseTags = inputTag.split("#");
+                    if (firebaseDataMap != null) {
+                        String inputTag = (String) firebaseDataMap.get("inputTag");
+                        if (inputTag != null) {
+                            String[] firebaseTags = inputTag.split("#");
 
-                                boolean hasDuplicate = false;
+                            boolean hasDuplicate = false;
 
-                                // Firebase에서 가져온 해시태그와 입력한 태그 비교
-                                for (String firebaseTag : firebaseTags) {
-                                    for (String hashTag : hashtagList) {
-                                        //중복 된 값이 있으면 루프 종료
-                                        if (firebaseTag.equals(hashTag)) {
-                                            hasDuplicate = true;
-                                            break;
-                                        }
+                            // Firebase에서 가져온 해시태그와 입력한 태그 비교
+                            for (String firebaseTag : firebaseTags) {
+                                for (String hashTag : hashtagList) {
+                                    //중복 된 값이 있으면 루프 종료
+                                    if (firebaseTag.equals(hashTag)) {
+                                        hasDuplicate = true;
+                                        break;
                                     }
-                                }
-
-                                // 중복이 있으면 데이터 처리
-                                if (hasDuplicate) {
-                                    // 데이터 추출
-                                    String title = (String) firebaseDataMap.get("inputName");
-                                    String year = String.valueOf(firebaseDataMap.get("year"));
-                                    String month = String.valueOf(firebaseDataMap.get("month"));
-                                    String day = String.valueOf(firebaseDataMap.get("day"));
-                                    String description = (String) firebaseDataMap.get("inputTag");
-                                    String imageUrl = (String) firebaseDataMap.get("imageUrl");
-                                    String campus = (String) firebaseDataMap.get("selectedCampus");
-                                    String arc = (String) firebaseDataMap.get("selectedArc");
-                                    String dtPlace = (String) firebaseDataMap.get("inputDPlace");
-                                    String ctg = (String) firebaseDataMap.get("selectedCtg");
-                                    String etc = (String) firebaseDataMap.get("rfDetail");
-                                    String uid = (String) firebaseDataMap.get("userID");
-
-                                    // 기본값으로 처리
-                                    int intYear = 0, intMonth = 0, intDay = 0;
-
-                                    try {
-                                        intYear = Integer.parseInt(year);
-                                        intMonth = Integer.parseInt(month);
-                                        intDay = Integer.parseInt(day);
-                                    } catch (NumberFormatException e) {
-                                        // 정수로 변환할 수 없는 경우 처리
-                                        e.printStackTrace();
-                                    }
-
-                                    // 날짜를 합치고 원하는 형식으로 포맷팅
-                                    String date = String.format("%04d-%02d-%02d", intYear, intMonth, intDay);
-
-                                    // PostModel 객체 생성 후 값 설정
-                                    PostModel post = new PostModel(title, date, description, imageUrl
-                                            , campus, arc, dtPlace, ctg, etc, uid);
-
-                                    // postList에 추가
-                                    postList.add(post);
                                 }
                             }
+
+                            // 중복이 있으면 데이터 처리
+                            if (hasDuplicate) {
+                                // 데이터 추출
+                                String title = (String) firebaseDataMap.get("inputName");
+                                String year = String.valueOf(firebaseDataMap.get("year"));
+                                String month = String.valueOf(firebaseDataMap.get("month"));
+                                String day = String.valueOf(firebaseDataMap.get("day"));
+                                String description = (String) firebaseDataMap.get("inputTag");
+                                String imageUrl = (String) firebaseDataMap.get("imageUrl");
+                                String campus = (String) firebaseDataMap.get("selectedCampus");
+                                String arc = (String) firebaseDataMap.get("selectedArc");
+                                String dtPlace = (String) firebaseDataMap.get("inputDPlace");
+                                String ctg = (String) firebaseDataMap.get("selectedCtg");
+                                String etc = (String) firebaseDataMap.get("rfDetail");
+                                String uid = (String) firebaseDataMap.get("userID");
+
+                                // 기본값으로 처리
+                                int intYear = 0, intMonth = 0, intDay = 0;
+
+                                try {
+                                    intYear = Integer.parseInt(year);
+                                    intMonth = Integer.parseInt(month);
+                                    intDay = Integer.parseInt(day);
+                                } catch (NumberFormatException e) {
+                                    // 정수로 변환할 수 없는 경우 처리
+                                    e.printStackTrace();
+                                }
+
+                                // 날짜를 합치고 원하는 형식으로 포맷팅
+                                String date = String.format("%04d-%02d-%02d", intYear, intMonth, intDay);
+
+                                // PostModel 객체 생성 후 값 설정
+                                PostModel post = new PostModel(title, date, description, imageUrl, campus, arc, dtPlace, ctg, etc, uid, postKey, false);
+
+                                // postList에 추가
+                                postList.add(post);
+                            }
+                        }
 
                     }
                 }
@@ -272,20 +272,20 @@ public class AlarmActivity extends AppCompatActivity {
 
     //해당 post로 이동하는 메소드
     private void openPostDtActivity(PostModel post) {
-            Intent intent = new Intent(AlarmActivity.this, PostDetailActivity.class);
+        Intent intent = new Intent(AlarmActivity.this, PostDetailActivity.class);
 
-            intent.putExtra("title",post.getTitle());
-            intent.putExtra("date",post.getDate());
-            intent.putExtra("tag",post.getDescription());
-            intent.putExtra("imgUrl",post.getImageUrl());
-            intent.putExtra("campus",post.getCampus());
-            intent.putExtra("arc",post.getArc());
-            intent.putExtra("dtPlace",post.getDtPlace());
-            intent.putExtra("ctg",post.getCtg());
-            intent.putExtra("etc",post.getEtc());
+        intent.putExtra("title",post.getTitle());
+        intent.putExtra("date",post.getDate());
+        intent.putExtra("tag",post.getDescription());
+        intent.putExtra("imgUrl",post.getImageUrl());
+        intent.putExtra("campus",post.getCampus());
+        intent.putExtra("arc",post.getArc());
+        intent.putExtra("dtPlace",post.getDtPlace());
+        intent.putExtra("ctg",post.getCtg());
+        intent.putExtra("etc",post.getEtc());
 
-            startActivity(intent);
-        }
+        startActivity(intent);
+    }
 
     @Override
     protected void onResume() {
