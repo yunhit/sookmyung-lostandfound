@@ -4,12 +4,15 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -35,11 +38,20 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         this.postList = postList;
     }
 
+    private boolean isSearchScreen = false;
+
+    public PostAdapter(Context context, List<PostModel> postList, boolean isSearchScreen) {
+        this.context = context;
+        this.postList = postList;
+        this.isSearchScreen = isSearchScreen;
+    }
+
+
     @NonNull
     @Override
     public PostViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_post, parent, false);
-        return new PostViewHolder(view);
+        return new PostViewHolder(view, postList, listener);
     }
 
     // PostAdapter의 onBindViewHolder() 메서드에서 이미지를 Firebase Storage에서 로드하여 표시하는 부분 수정
@@ -51,6 +63,13 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         holder.textDate.setText(post.getDate());
         holder.textDescription.setText(post.getDescription());
 
+        if (post.isDeleteButtonVisible()) {
+            holder.deleteBtn.setVisibility(View.VISIBLE);
+        } else {
+            holder.deleteBtn.setVisibility(View.GONE);
+        }
+
+
         // Firebase Storage에서 이미지 로드하여 표시
         Glide.with(context).clear(holder.imageView);
         if (post.getImageUrl() != null) {
@@ -59,17 +78,20 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                     .into(holder.imageView);
         }
 
+
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(listener != null) {
+                if (listener != null) {
                     int position = holder.getAdapterPosition();
-                    if(position != RecyclerView.NO_POSITION) {
+                    if (position != RecyclerView.NO_POSITION) {
                         listener.onItemClick(postList.get(position));
                     }
                 }
             }
         });
+
+
     }
 
     @Override
@@ -85,13 +107,39 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
     public static class PostViewHolder extends RecyclerView.ViewHolder {
         ImageView imageView;
         TextView textTitle, textDate, textDescription;
+        Button deleteBtn;
+        List<PostModel> postList;
+        DatabaseReference databaseReference; // Firebase Database 참조
+        PostAdapter adapter;
 
-        public PostViewHolder(@NonNull View itemView) {
+        public PostViewHolder(@NonNull View itemView, List<PostModel> postList, OnItemClickListener listener) {
             super(itemView);
+            this.postList = postList;
+            this.adapter = adapter;
+            databaseReference = FirebaseDatabase.getInstance().getReference().child("Data"); // 데이터베이스 참조 설정
+
             imageView = itemView.findViewById(R.id.imageView);
             textTitle = itemView.findViewById(R.id.text_title);
             textDate = itemView.findViewById(R.id.text_date);
             textDescription = itemView.findViewById(R.id.text_description);
+            deleteBtn = itemView.findViewById(R.id.deleteButton);
+
+
+            deleteBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int position = getAdapterPosition();
+                    if (position != RecyclerView.NO_POSITION) {
+                        String postKey = postList.get(position).getPostKey(); // 삭제할 데이터의 키 가져오기
+                        databaseReference.child(postKey).removeValue(); // Firebase에서 데이터 삭제
+
+                        // RecyclerView에서 아이템 제거
+                        postList.remove(position);
+                        adapter.notifyItemRemoved(position);
+                        adapter.notifyItemRangeChanged(position, postList.size()); // 변경된 위치부터 끝까지 업데이트
+                    }
+                }
+            });
         }
     }
 }
