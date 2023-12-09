@@ -1,204 +1,391 @@
 package pack.mp_team5project;
 
+
+
+
+import android.app.AlertDialog;
+
+import android.content.DialogInterface;
+
 import android.content.Intent;
+
 import android.os.Bundle;
+
+import android.util.Log;
+
+import android.view.LayoutInflater;
+
 import android.view.View;
-import android.widget.TextView;
-import android.widget.Toast;
+
+import android.view.ViewGroup;
+
 import android.widget.SearchView;
 
+import android.widget.TextView;
+
+import android.widget.Toast;
+
+
+
+
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
+
+import androidx.annotation.Nullable;
+
+import androidx.fragment.app.Fragment;
+
 import androidx.recyclerview.widget.LinearLayoutManager;
+
 import androidx.recyclerview.widget.RecyclerView;
 
+
+
+
 import com.google.firebase.auth.FirebaseAuth;
+
+import com.google.firebase.auth.FirebaseUser;
+
 import com.google.firebase.database.DataSnapshot;
+
 import com.google.firebase.database.DatabaseError;
+
 import com.google.firebase.database.DatabaseReference;
+
 import com.google.firebase.database.FirebaseDatabase;
+
 import com.google.firebase.database.ValueEventListener;
 
+
+
+
 import java.util.ArrayList;
+
 import java.util.List;
+
 import java.util.Map;
 
-public class SearchActivity extends AppCompatActivity {
+
+
+
+public class MyCommentFragment extends Fragment {
+
+
+
 
     private RecyclerView recyclerView;
+
     private List<PostModel> postList;
+
     private PostAdapter postAdapter;
 
 
+
+
+    private List<CommentModel> commentList;
+
+    private CommentAdapter commentAdapter;
+
+
+
+
+    View view;
+
+
+
+
     FirebaseAuth mAuth;
+
+    FirebaseUser currentUser;
+
     DatabaseReference conditionRef = FirebaseDatabase.getInstance().getReference().child("Data");
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_search);
+    DatabaseReference commentsRef = FirebaseDatabase.getInstance().getReference().child("comments");
 
-        recyclerView = findViewById(R.id.recycler_view);
+
+
+
+    @Nullable
+
+    @Override
+
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
+        // tablayout
+
+        view = inflater.inflate(R.layout.mypagetab2, container, false);
+
+
+
+
+        recyclerView = view.findViewById(R.id.recycler_view);
+
         recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+
+
 
         postList = new ArrayList<>();
-        postAdapter = new PostAdapter(this, postList);
+
+        postAdapter = new PostAdapter(getContext(), postList);
+
         recyclerView.setAdapter(postAdapter);
 
-        // Firebase에서 데이터 가져오기
+
+
+
+        commentList = new ArrayList<>();
+
+        commentAdapter = new CommentAdapter(getContext(), commentList);
+
+
+
+
+        // 현재 사용자 가져오기
+
         mAuth = FirebaseAuth.getInstance();
+
+        currentUser = mAuth.getCurrentUser();
+
         String userEmailId = mAuth.getCurrentUser().getEmail();
 
 
-        conditionRef.addListenerForSingleValueEvent(new ValueEventListener() {
+
+
+        commentsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+
             @Override
+
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                postList.clear();
-                for(DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    String postKey = snapshot.getKey();
 
-                    Map<String, Object> firebaseDataMap = (Map<String, Object>) snapshot.getValue();
-                    if(firebaseDataMap != null){
-                        String title = (String) firebaseDataMap.get("inputName");
-                        // Firebase 에 저장된 키가 year month day 이기 때문에
-                        String year = String.valueOf(firebaseDataMap.get("year"));
-                        String month = String.valueOf(firebaseDataMap.get("month"));
-                        String day = String.valueOf(firebaseDataMap.get("day"));
+                commentList.clear();
 
-                        String description = (String) firebaseDataMap.get("inputTag");
-                        String imageUrl = (String) firebaseDataMap.get("imageUrl");
+                for (DataSnapshot commentSnapshot : dataSnapshot.getChildren()) {
 
-                        String campus = (String) firebaseDataMap.get("selectedCampus");
-                        String arc = (String) firebaseDataMap.get("selectedArc");
-                        String dtPlace = (String) firebaseDataMap.get("inputDPlace");
-                        String ctg = (String) firebaseDataMap.get("selectedCtg");
-                        String etc = (String) firebaseDataMap.get("rfDetail");
+                    CommentModel comment = commentSnapshot.getValue(CommentModel.class);
 
 
-                        // 기본값으로 처리
-                        int intYear = 0, intMonth = 0, intDay = 0;
 
-                        try {
-                            intYear = Integer.parseInt(year);
-                            intMonth = Integer.parseInt(month);
-                            intDay = Integer.parseInt(day);
-                        } catch (NumberFormatException e) {
-                            // 정수로 변환할 수 없는 경우 처리
-                            e.printStackTrace();
+
+                    if (comment != null) {
+
+                        String author = (String) comment.getAuthor();
+
+
+
+
+                        if (author != null && currentUser != null && author.equals(userEmailId)) {
+
+                            String postKey = (String) comment.getTargetPostKey();
+
+
+
+
+                            // 해당 댓글의 postKey를 사용하여 게시글 정보를 가져옴
+
+                            conditionRef.addListenerForSingleValueEvent(new ValueEventListener() {
+
+                                @Override
+
+                                public void onDataChange(@NonNull DataSnapshot postSnapshot) {
+
+                                    postList.clear();
+
+                                    for (DataSnapshot snapshot : postSnapshot.getChildren()) {
+
+                                        String postKey = snapshot.getKey();
+
+
+
+
+                                        // 가져온 데이터를 Map으로 변환
+
+                                        Map<String, Object> firebaseDataMap = (Map<String, Object>) snapshot.getValue();
+
+
+
+
+                                        if (firebaseDataMap != null) {
+
+                                            String uid = (String) firebaseDataMap.get("userID");
+
+
+
+
+                                            if (uid != null && postKey != null && postKey.equals(conditionRef.getKey())) {
+
+
+
+
+                                                String title = (String) firebaseDataMap.get("inputName");
+
+                                                String year = String.valueOf(firebaseDataMap.get("year"));
+
+                                                String month = String.valueOf(firebaseDataMap.get("month"));
+
+                                                String day = String.valueOf(firebaseDataMap.get("day"));
+
+                                                String description = (String) firebaseDataMap.get("inputTag");
+
+                                                String imageUrl = (String) firebaseDataMap.get("imageUrl");
+
+                                                String campus = (String) firebaseDataMap.get("selectedCampus");
+
+                                                String arc = (String) firebaseDataMap.get("selectedArc");
+
+                                                String dtPlace = (String) firebaseDataMap.get("inputDPlace");
+
+                                                String ctg = (String) firebaseDataMap.get("selectedCtg");
+
+                                                String etc = (String) firebaseDataMap.get("rfDetail");
+
+
+
+
+                                                int intYear = 0, intMonth = 0, intDay = 0;
+
+                                                try {
+
+                                                    intYear = Integer.parseInt(year);
+
+                                                    intMonth = Integer.parseInt(month);
+
+                                                    intDay = Integer.parseInt(day);
+
+                                                } catch (NumberFormatException e) {
+
+                                                    e.printStackTrace();
+
+                                                }
+
+                                                String date = String.format("%04d-%02d-%02d", intYear, intMonth, intDay);
+
+                                                // PostModel 객체 생성 및 변수 값 대입
+
+                                                PostModel post = new PostModel(title, date, description, imageUrl, campus,
+
+                                                        arc, dtPlace, ctg, etc, userEmailId, postKey, true);
+
+                                                postList.add(post);
+
+                                            }
+
+                                        }
+
+                                    }
+
+                                    postAdapter.notifyDataSetChanged();
+
+                                    if (postList.isEmpty()) {
+
+                                        view.findViewById(R.id.no_result_text_view).setVisibility(View.VISIBLE);
+
+                                    } else {
+
+                                        view.findViewById(R.id.no_result_text_view).setVisibility(View.GONE);
+
+                                    }
+
+                                }
+
+
+
+
+                                @Override
+
+                                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                    Toast.makeText(getContext(), "데이터 불러오기에 실패하였습니다", Toast.LENGTH_SHORT).show();
+
+                                }
+
+                            });
+
                         }
 
-                        // 날짜를 합치고 원하는 형식으로 포맷팅
-                        String date = String.format("%04d-%02d-%02d", intYear, intMonth, intDay);
-
-                        //PostModel 객체 생성 및 변수 값 대입
-                        PostModel post = new PostModel(title, date, description, imageUrl, campus,
-                                arc,dtPlace,ctg,etc,userEmailId,postKey);
-                        postList.add(post);
                     }
+
                 }
-                postAdapter.notifyDataSetChanged();
+
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(SearchActivity.this, "Failed to load posts.", Toast.LENGTH_SHORT).show();
+
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                Toast.makeText(getContext(), "데이터 불러오기에 실패하였습니다", Toast.LENGTH_SHORT).show();
+
             }
+
         });
 
-        postAdapter.setOnItemClickListener(new PostAdapter.OnItemClickListener(){
+
+
+
+        // 해당하는 글로 이동
+
+        postAdapter.setOnItemClickListener(new PostAdapter.OnItemClickListener() {
+
             @Override
-            public void onItemClick(PostModel post){
+
+            public void onItemClick(PostModel post) {
+
                 openPostDtActivity(post);
-            }
 
+            }
 
         });
 
 
 
-        SearchView searchView = findViewById(R.id.search_view);
 
-        // SearchView의 이벤트 리스너 설정
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                // 검색 버튼을 누를 때 호출됩니다. 여기서는 필요하지 않을 수 있습니다.
-                return true;
-            }
+        return view;
 
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                // 검색어가 변경될 때마다 호출됩니다.
-                performSearch(newText); // 검색어를 가지고 검색을 수행하는 메서드 호출
-                return true;
-            }
-        });
     }
+
+
+
 
     private void openPostDtActivity(PostModel post) {
-        Intent intent = new Intent(SearchActivity.this, PostDetailActivity.class);
+
+
+
+
+        // Fragment에서는 getActivity()로 현재 fragment가 속한 activity를 가져와야 함
+
+        Intent intent = new Intent(getActivity(),PostDetailActivity.class);
+
+
+
 
         intent.putExtra("title",post.getTitle());
+
         intent.putExtra("date",post.getDate());
+
         intent.putExtra("tag",post.getDescription());
+
         intent.putExtra("imgUrl",post.getImageUrl());
+
         intent.putExtra("campus",post.getCampus());
+
         intent.putExtra("arc",post.getArc());
+
         intent.putExtra("dtPlace",post.getDtPlace());
+
         intent.putExtra("ctg",post.getCtg());
+
         intent.putExtra("etc",post.getEtc());
+
         intent.putExtra("email",post.getUserEmailId());
+
         intent.putExtra("postKey",post.getPostKey());
 
+
+
+
         startActivity(intent);
-    }
-
-    // 검색 메서드
-    private void performSearch(String query) {
-        if (postList == null || query == null) {
-            return;
-        }
-
-        List<PostModel> filteredList = new ArrayList<>();
-
-        for (PostModel post : postList) {
-            // 여기서 post.getTitle(), post.getDescription() 등을 통해 검색 기준을 설정
-            // 예를 들어, 제목 또는 설명에 검색어가 포함되어 있는지 확인할 수 있음
-            String title = post.getTitle();
-            String description = post.getDescription();
-            if ((title != null && title.toLowerCase().contains(query.toLowerCase())) ||
-                    (description != null && description.toLowerCase().contains(query.toLowerCase()))) {
-                filteredList.add(post);
-            }
-        }
-
-        // RecyclerView 에 검색된 결과 표시
-        updateRecyclerView(filteredList);
-
 
     }
-
-
-    private void updateRecyclerView(List<PostModel> resultList) {
-        RecyclerView recyclerView = findViewById(R.id.recycler_view);
-        TextView noResultTextView = findViewById(R.id.no_result_text_view);
-
-        if (resultList.isEmpty()) {
-            // 검색 결과가 없을 때 RecyclerView 감추고, 일치하는 검색어가 없음을 나타내는 TextView 보이기
-            recyclerView.setVisibility(View.GONE);
-            noResultTextView.setVisibility(View.VISIBLE);
-            noResultTextView.setText("일치하는 검색어가 없습니다");
-        } else {
-            // 검색 결과가 있을 때 RecyclerView 보이고, TextView 감추기
-            recyclerView.setVisibility(View.VISIBLE);
-            noResultTextView.setVisibility(View.GONE);
-
-            // RecyclerView에 검색된 결과 표시
-            postAdapter = new PostAdapter(this, resultList);
-            recyclerView.setAdapter(postAdapter);
-        }
-    }
-
 
 }
