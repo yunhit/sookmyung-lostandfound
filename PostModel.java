@@ -1,5 +1,8 @@
 package pack.mp_team5project;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 public class PostModel {
     private String title;
     private String date;
@@ -12,6 +15,7 @@ public class PostModel {
     private String etc;
     private String userEmailId;
     private String postKey;
+    private boolean isDeleteButtonVisible;
 
 
 
@@ -21,7 +25,7 @@ public class PostModel {
 
     public PostModel(String title, String date, String description, String imageUrl,
                      String campus, String arc, String dtPlace, String ctg, String etc,
-                     String userEmailId, String postKey) {
+                     String userEmailId, String postKey, boolean isDeleteButtonVisible) {
         this.title = title;
         this.date = date;
         this.description = description;
@@ -33,6 +37,7 @@ public class PostModel {
         this.etc = etc;
         this.userEmailId = userEmailId;
         this.postKey = postKey;
+        this.isDeleteButtonVisible = isDeleteButtonVisible;
     }
 
     public String getTitle() {
@@ -111,4 +116,8 @@ public class PostModel {
     public void setPostKey(String postKey) {
         this.postKey = postKey;
     }
+    public boolean isDeleteButtonVisible() {
+        return isDeleteButtonVisible;
+    }
+
 }
