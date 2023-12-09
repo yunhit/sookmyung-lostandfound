@@ -107,7 +107,7 @@ public class MyWrittingFragment extends Fragment {
 
                             //PostModel 객체 생성 및 변수 값 대입
                             PostModel post = new PostModel(title, date, description, imageUrl, campus,
-                                    arc,dtPlace, ctg, etc, userEmailId, postKey);
+                                    arc,dtPlace, ctg, etc, userEmailId, postKey, true);
                             postList.add(post);
                         }
                     }
@@ -127,6 +127,7 @@ public class MyWrittingFragment extends Fragment {
             }
         });
 
+
         // 해당하는 글로 이동
         postAdapter.setOnItemClickListener(new PostAdapter.OnItemClickListener(){
             @Override
@@ -139,7 +140,7 @@ public class MyWrittingFragment extends Fragment {
     }
 
     // 게시글로 이동
-   private void openPostDtActivity(PostModel post) {
+    private void openPostDtActivity(PostModel post) {
         // Fragment에서는 getActivity()로 현재 fragment가 속한 activity를 가져와야 함
         Intent intent = new Intent(getActivity(),PostDetailActivity.class);
 
@@ -157,5 +158,6 @@ public class MyWrittingFragment extends Fragment {
 
         startActivity(intent);
     }
+
 
 }
