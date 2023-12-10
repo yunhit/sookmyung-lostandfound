@@ -13,16 +13,16 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 
 import com.bumptech.glide.Glide;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder> {
 
     public interface OnItemClickListener {
         void onItemClick(PostModel post);
+        void onDeleteButtonClick(Integer position);
     }
 
     private OnItemClickListener listener;
@@ -110,12 +110,10 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         Button deleteBtn;
         List<PostModel> postList;
         DatabaseReference databaseReference; // Firebase Database 참조
-        PostAdapter adapter;
 
         public PostViewHolder(@NonNull View itemView, List<PostModel> postList, OnItemClickListener listener) {
             super(itemView);
             this.postList = postList;
-            this.adapter = adapter;
             databaseReference = FirebaseDatabase.getInstance().getReference().child("Data"); // 데이터베이스 참조 설정
 
             imageView = itemView.findViewById(R.id.imageView);
@@ -130,13 +128,8 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                 public void onClick(View v) {
                     int position = getAdapterPosition();
                     if (position != RecyclerView.NO_POSITION) {
-                        String postKey = postList.get(position).getPostKey(); // 삭제할 데이터의 키 가져오기
-                        databaseReference.child(postKey).removeValue(); // Firebase에서 데이터 삭제
-
                         // RecyclerView에서 아이템 제거
-                        postList.remove(position);
-                        adapter.notifyItemRemoved(position);
-                        adapter.notifyItemRangeChanged(position, postList.size()); // 변경된 위치부터 끝까지 업데이트
+                        listener.onDeleteButtonClick(position);
                     }
                 }
             });
