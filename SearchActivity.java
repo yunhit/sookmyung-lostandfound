@@ -109,7 +109,13 @@ public class SearchActivity extends AppCompatActivity {
                 openPostDtActivity(post);
             }
 
-
+            @Override
+            public void onDeleteButtonClick(Integer position) {
+                String postKey = postList.get(position).getPostKey(); // 삭제할 데이터의 키 가져오기
+                conditionRef.child(postKey).removeValue(); // Firebase에서 데이터 삭제
+                postList.remove(position);
+                postAdapter.notifyItemRemoved(position);
+            }
         });
 
 
