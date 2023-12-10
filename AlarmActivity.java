@@ -101,8 +101,13 @@ public class AlarmActivity extends AppCompatActivity {
         });
         postAdapter.setOnItemClickListener(new PostAdapter.OnItemClickListener(){
             @Override
-            public void onItemClick(PostModel post){
+            public void onItemClick(PostModel post) {
                 openPostDtActivity(post);
+            }
+
+            @Override
+            public void onDeleteButtonClick(Integer position) {
+
             }
         });
 
@@ -252,7 +257,6 @@ public class AlarmActivity extends AppCompatActivity {
 
                                 // PostModel 객체 생성 후 값 설정
                                 PostModel post = new PostModel(title, date, description, imageUrl, campus, arc, dtPlace, ctg, etc, userEmailId, postKey, false);
-
                                 // postList에 추가
                                 postList.add(post);
                             }
