@@ -141,6 +141,11 @@ public class MyCommentFragment extends Fragment {
             public void onItemClick(PostModel post){
                 openPostDtActivity(post);
             }
+
+            @Override
+            public void onDeleteButtonClick(Integer position) {
+                // 사용X
+            }
         });
 
         return view;

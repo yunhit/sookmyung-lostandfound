@@ -30,6 +30,9 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Calendar;
 
 import com.google.firebase.auth.FirebaseUser;
@@ -124,19 +127,17 @@ public class RegisterInfoActivity extends AppCompatActivity {
         ctgAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         ctgSpinner.setAdapter(ctgAdapter);
 
-        datePicker = findViewById(R.id.datePicker);
-
         Calendar calendar = Calendar.getInstance();
         defaultYear = calendar.get(Calendar.YEAR);
         defaultMonth = calendar.get(Calendar.MONTH);
         defaultDay = calendar.get(Calendar.DAY_OF_MONTH);
 
-        // 디퐅트 값(현 날짜)에서 수정이 없을 경우 대비
+        // 디퐅트 값(현 날짜)에서 data 수정이 없을 경우
         selectedYear = defaultYear;
         selectedMonth = defaultMonth + 1;
         selectedDay = defaultDay;
 
-
+        datePicker = findViewById(R.id.datePicker);
         datePicker.init(defaultYear, defaultMonth, defaultDay, new DatePicker.OnDateChangedListener() {
             @Override
             public void onDateChanged(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
@@ -345,8 +346,24 @@ public class RegisterInfoActivity extends AppCompatActivity {
         BitmapDrawable bitmapDrawable = (BitmapDrawable) drawable;
         Bitmap bitmap = bitmapDrawable.getBitmap();
 
-        String path = MediaStore.Images.Media.insertImage(getContentResolver(),bitmap,
-                "image description",null);
-        return Uri.parse(path);
+        // 파일로 이미지 저장
+        File cacheDir = this.getCacheDir();
+        File imagePath = new File(cacheDir, "image.png");
+        try {
+            FileOutputStream fos = new FileOutputStream(imagePath);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+            fos.flush();
+            fos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // 파일의 Uri 반환
+        return Uri.fromFile(imagePath);
+//        BitmapDrawable bitmapDrawable = (BitmapDrawable) drawable;
+//        Bitmap bitmap = bitmapDrawable.getBitmap();
+//
+//        String path = MediaStore.Images.Media.insertImage(getContentResolver(), bitmap, "image description", null);
+//        return Uri.parse(path);
     }
 }
