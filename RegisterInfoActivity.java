@@ -34,6 +34,7 @@ import android.widget.Toast;
 
 import java.util.Calendar;
 
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.auth.FirebaseAuth;
@@ -52,6 +53,7 @@ public class RegisterInfoActivity extends AppCompatActivity {
     Button attachBtn,rgBtn;
     ActivityResultLauncher<Intent> launcher;
     private FirebaseAuth mAuth;
+    String email;
 
     int year, month,day;
     int selectedYear, selectedMonth,selectedDay;
@@ -70,6 +72,10 @@ public class RegisterInfoActivity extends AppCompatActivity {
 
 
         mAuth = FirebaseAuth.getInstance(); //Post data안에 현재 UID를 등록하기 위함
+        FirebaseUser user =  FirebaseAuth.getInstance().getCurrentUser();
+        if(user != null){
+            email = user.getEmail(); // user email 정보 불러오기
+        }
         dataRef = conditionRef.push(); // onCreate 내에서 dataRef 초기화
 
         //Spinner 설정
@@ -271,6 +277,9 @@ public class RegisterInfoActivity extends AppCompatActivity {
             Uri imageUri = getImageUri(inputImage.getDrawable());
             intent.putExtra("KEY_IMAGE_URI",imageUri.toString());
         }
+
+        intent.putExtra("KEY_DATA_KEY", dataRef.getKey());
+        intent.putExtra("KEY_USER_EMAIL",email);
         intent.putExtra("KEY_DATA_KEY", dataRef.getKey());
 
         startActivity(intent);
@@ -287,6 +296,7 @@ public class RegisterInfoActivity extends AppCompatActivity {
         dataRef.child("inputTag").setValue(inputTag);
         dataRef.child("rfDetail").setValue(refDetail);
         dataRef.child("userID").setValue(mAuth.getCurrentUser().getUid());
+        dataRef.child("userEmail").setValue(email);
 
         // 이미지를 Firebase Storage에 업로드
         if (inputImage != null && inputImage.getDrawable() != null) {

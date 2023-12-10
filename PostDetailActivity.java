@@ -17,6 +17,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -37,7 +39,7 @@ public class PostDetailActivity extends AppCompatActivity {
     ImageView itmImgView;
     EditText editTextComment;
     Button commentBtn;
-    String postKey;
+    String postKey, commentUserEmail;
 
     private RecyclerView recyclerView;
     private List<CommentModel> commentList;
@@ -106,8 +108,12 @@ public class PostDetailActivity extends AppCompatActivity {
         commentBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                FirebaseUser user =  FirebaseAuth.getInstance().getCurrentUser();
+                if(user != null){
+                    commentUserEmail = user.getEmail(); // user email 정보 불러오기
+                }
                 String commentContent = editTextComment.getText().toString();
-                String commentAuthor = email + "님의 댓글";
+                String commentAuthor = commentUserEmail;
 
                 if(!TextUtils.isEmpty(commentContent)) {
                     String commentId = FirebaseDatabase.getInstance().getReference()
@@ -122,7 +128,7 @@ public class PostDetailActivity extends AppCompatActivity {
                     FirebaseDatabase.getInstance().getReference().child("comments")
                             .child(commentId).setValue(commentData);
 
-                    CommentModel newComment = new CommentModel(commentAuthor, commentContent, getTimestamp());
+                    CommentModel newComment = new CommentModel(commentAuthor, commentContent, getTimestamp(), postKey);
                     commentList.add(newComment);
 
                     if(commentAdapter == null){
