@@ -165,7 +165,7 @@
             android:layout_gravity="center"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
-            android:background="@drawable/register_btn_design"
+            android:background="@drawable/border_blue_background"
             android:textColor="@color/white"
             android:textStyle="bold"
             android:text="등록" />
