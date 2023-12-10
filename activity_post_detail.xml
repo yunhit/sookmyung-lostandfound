@@ -2,24 +2,30 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:orientation="vertical">
 
     <!-- 1. 사용자 아이디 표시 -->
     <TextView
-        android:id="@+id/textUserId"
-        android:layout_width="wrap_content"
+        android:id="@+id/textUserEmailId"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="#274291"
+        android:padding="5dp"
         android:text=""
+        android:textColor="@color/white"
         android:textSize="18sp"
-        android:textStyle="bold"/>
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/itemName"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:textSize="30sp"
-        android:text="분실물" />
+        android:layout_height="50dp"
+        android:background="#274291"
+        android:paddingLeft="5dp"
+        android:paddingBottom="7dp"
+        android:text=""
+        android:textColor="@color/white"
+        android:textSize="30sp" />
     <!-- 2. 이미지뷰로 등록한 이미지 표시 -->
     <ImageView
         android:id="@+id/itemImageView"
@@ -28,6 +34,8 @@
         android:layout_gravity="center"
         android:layout_margin="16dp"
         android:adjustViewBounds="true"
+        android:background="@drawable/corner_round"
+        android:clipToOutline="true"
         android:scaleType="centerCrop" /> <!-- 여기에 등록한 이미지 연동 -->
 
 
@@ -35,62 +43,95 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:background="#274291"
+        android:orientation="horizontal"
+        android:paddingLeft="5dp"
+        android:paddingTop="10dp">
+
+        <TextView
+            android:id="@+id/itemDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text=""
+            android:textColor="@color/white" />
 
         <TextView
             android:id="@+id/itemPlace"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="" />
-        <TextView
-            android:id="@+id/itemTag"
-            android:layout_weight="1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="" />
-        <TextView
-            android:id="@+id/itemDate"
-            android:layout_weight="1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="" />
+            android:text=""
+            android:textColor="@color/white" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#274291"
+        android:orientation="horizontal"
+        android:paddingLeft="5dp"
+        android:paddingBottom="10dp">
+
         <TextView
             android:id="@+id/itemCtg"
-            android:layout_weight="1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="" />
+            android:layout_weight="1"
+            android:text=""
+            android:textColor="@color/white" />
+
+        <TextView
+            android:id="@+id/itemTag"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text=""
+            android:textColor="@color/white" />
     </LinearLayout>
+
 
     <TextView
         android:id="@+id/itemEtc"
+        android:paddingLeft="5dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inputType="textMultiLine"
         android:gravity="start|top"
-        android:text="" />
+        android:inputType="textMultiLine"
+        android:text=""
+        android:textColor="@color/black"
+        android:textSize="20sp" />
+
+    <pack.mp_team5project.LineView
+        android:layout_width="match_parent"
+        android:layout_height="20dp"
+        android:layout_centerInParent="true" />
+
+
+
     <!-- 4. 댓글 입력창과 댓글 작성 버튼을 가로로 나란히 배치하는 부분 -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="16dp">
+
+        android:orientation="horizontal">
+
 
         <!-- 4.1. 댓글 입력창 -->
         <EditText
             android:id="@+id/editTextComment"
             android:layout_width="0dp"
-            android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:hint="댓글을 입력하세요"/>
+            android:layout_weight="1"
+            android:hint="댓글을 입력하세요" />
 
         <!-- 4.2. 댓글 작성 버튼 -->
         <Button
             android:id="@+id/buttonPostComment"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="댓글 작성"/>
+            android:text="댓글 작성" />
     </LinearLayout>
 
     <!-- 5. 댓글 표시 영역 -->
@@ -99,10 +140,11 @@
         android:layout_height="match_parent"
         android:fillViewport="true"
         android:scrollbars="none">
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerViewComments"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="16dp"/>
+            android:layout_marginTop="16dp" />
     </ScrollView>
 </LinearLayout>
