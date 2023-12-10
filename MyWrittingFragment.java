@@ -134,6 +134,17 @@ public class MyWrittingFragment extends Fragment {
             public void onItemClick(PostModel post){
                 openPostDtActivity(post);
             }
+
+            @Override
+            public void onDeleteButtonClick(Integer position) {
+                String postKey = postList.get(position).getPostKey(); // 삭제할 데이터의 키 가져오기
+                conditionRef.child(postKey).removeValue(); // Firebase에서 데이터 삭제
+
+                postList.remove(postList.get(position));
+                postAdapter.notifyItemRemoved(position);
+                Toast.makeText(getActivity(), "삭제됐어요", Toast.LENGTH_SHORT).show();
+//                postAdapter.notifyItemRemoved(position);
+            }
         });
         // 마이페이지-내가 쓴 글 view 반환
         return view;
