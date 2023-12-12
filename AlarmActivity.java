@@ -36,7 +36,7 @@ public class AlarmActivity extends AppCompatActivity {
     EditText edt_tag;
     ImageButton addTag_btn;
     android.widget.Button alarmSetting_btn;
-    Boolean alarmSetting_tf;
+    static Boolean alarmSetting_tf;
     RecyclerView hashTag_recyclearView, post_recyclearView;
     private PostAdapter postAdapter;
     private List<PostModel> postList;
@@ -136,10 +136,8 @@ public class AlarmActivity extends AppCompatActivity {
 
                     // 새로운 해시태그를 리스트에 추가
                     hashtagList.add(hashtagValue);
-
                     // 업데이트된 리스트를 다시 파이어베이스에 저장
                     HashDataRef.setValue(hashtagList);
-
                     // 입력 필드 초기화
                     edt_tag.setText("");
                     updateHashTagRecyclerView();

@@ -25,9 +25,11 @@
             android:exported="false" />
         <activity
             android:name=".AlarmActivity"
+            android:windowSoftInputMode="adjustPan"
             android:exported="false" />
         <activity
             android:name=".RegisterInfoActivity"
+            android:windowSoftInputMode="adjustPan"
             android:exported="false" />
         <activity
             android:name=".AfterInfoActivity"
@@ -55,6 +57,7 @@
             android:exported="true"/>
         <activity
             android:name=".PostDetailActivity"
+            android:windowSoftInputMode="adjustPan"
             android:exported="true"/>
     </application>
 
